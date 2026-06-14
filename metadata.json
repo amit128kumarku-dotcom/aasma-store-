@@ -1,0 +1,6 @@
+{
+  "name": "Aasma Store",
+  "description": "Premium affiliate and referral marketplace platform.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

@@ -1,0 +1,145 @@
+{
+  "entities": {
+    "App": {
+      "title": "App",
+      "description": "An application listed in the store",
+      "type": "object",
+      "properties": {
+        "logo": { "type": "string" },
+        "name": { "type": "string" },
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "referralLink": { "type": "string" },
+        "additionalLinks": { "type": "array", "items": { "type": "string" } },
+        "screenshots": { "type": "array", "items": { "type": "string" } },
+        "seoKeywords": { "type": "string" },
+        "averageRating": { "type": "number" },
+        "totalRatings": { "type": "number" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "title", "description", "createdAt", "updatedAt"]
+    },
+    "EarningApp": {
+      "title": "Earning App",
+      "description": "An earning application listed in the store",
+      "type": "object",
+      "properties": {
+        "logo": { "type": "string" },
+        "name": { "type": "string" },
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "referralLink": { "type": "string" },
+        "additionalLinks": { "type": "array", "items": { "type": "string" } },
+        "screenshots": { "type": "array", "items": { "type": "string" } },
+        "seoKeywords": { "type": "string" },
+        "averageRating": { "type": "number" },
+        "totalRatings": { "type": "number" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "title", "description", "createdAt", "updatedAt"]
+    },
+    "Product": {
+      "title": "Product",
+      "description": "An affiliate product listed in the store",
+      "type": "object",
+      "properties": {
+        "productImage": { "type": "string" },
+        "productName": { "type": "string" },
+        "productTitle": { "type": "string" },
+        "description": { "type": "string" },
+        "affiliateLink": { "type": "string" },
+        "additionalLinks": { "type": "array", "items": { "type": "string" } },
+        "productImages": { "type": "array", "items": { "type": "string" } },
+        "seoKeywords": { "type": "string" },
+        "averageRating": { "type": "number" },
+        "totalRatings": { "type": "number" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["productName", "productTitle", "description", "createdAt", "updatedAt"]
+    },
+    "Rating": {
+      "title": "Rating",
+      "description": "A user rating for an item",
+      "type": "object",
+      "properties": {
+        "itemId": { "type": "string" },
+        "itemType": { "type": "string" },
+        "rating": { "type": "number" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["itemId", "itemType", "rating", "createdAt"]
+    },
+    "Settings": {
+      "title": "Settings",
+      "description": "Global website settings",
+      "type": "object",
+      "properties": {
+        "websiteName": { "type": "string" },
+        "logoUrl": { "type": "string" },
+        "accentColor": { "type": "string" },
+        "searchEnabled": { "type": "boolean" },
+        "pwaAppName": { "type": "string" },
+        "pwaInstallPrompt": { "type": "string" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["websiteName", "updatedAt"]
+    },
+    "Announcement": {
+      "title": "Announcement",
+      "description": "Popup announcement",
+      "type": "object",
+      "properties": {
+        "enabled": { "type": "boolean" },
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "image": { "type": "string" },
+        "link": { "type": "string" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["enabled", "title", "updatedAt"]
+    },
+    "View": {
+      "title": "View",
+      "description": "Page view tracking",
+      "type": "object",
+      "properties": {
+        "path": { "type": "string" },
+        "timestamp": { "type": "string", "format": "date-time" }
+      },
+      "required": ["path", "timestamp"]
+    }
+  },
+  "firestore": {
+    "apps/{appId}": {
+      "schema": { "$ref": "#/entities/App" },
+      "description": "Apps collection"
+    },
+    "earning_apps/{appId}": {
+      "schema": { "$ref": "#/entities/EarningApp" },
+      "description": "Earning Apps collection"
+    },
+    "products/{productId}": {
+      "schema": { "$ref": "#/entities/Product" },
+      "description": "Products collection"
+    },
+    "ratings/{ratingId}": {
+      "schema": { "$ref": "#/entities/Rating" },
+      "description": "Ratings collection"
+    },
+    "settings/{settingId}": {
+      "schema": { "$ref": "#/entities/Settings" },
+      "description": "Settings collection (singleton usually)"
+    },
+    "announcements/{announcementId}": {
+      "schema": { "$ref": "#/entities/Announcement" },
+      "description": "Announcements collection (singleton usually)"
+    },
+    "views/{viewId}": {
+      "schema": { "$ref": "#/entities/View" },
+      "description": "Views collection"
+    }
+  }
+}

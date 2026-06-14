@@ -1,0 +1,196 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() > 0 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() { return request.resource.data; }
+    function existing() { return resource.data; }
+    
+    function isAdmin() {
+      return request.auth != null && 
+             (request.auth.token.email == 'jiamit134kumar@gmail.com' || request.auth.token.email == 'arun2kumarkushwaha@gmail.com');
+    }
+
+    function isSafeString(val, maxLen) {
+      return val is string && val.size() <= maxLen;
+    }
+
+    function isSafeArray(val, maxLen) {
+      return val is list && val.size() <= maxLen;
+    }
+
+    function isValidApp(data) {
+      return isSafeString(data.name, 100) &&
+             isSafeString(data.title, 100) &&
+             isSafeString(data.description, 5000) &&
+             data.keys().hasAll(['name', 'title', 'description', 'createdAt']) &&
+             (!('logo' in data) || isSafeString(data.logo, 1000000)) &&
+             (!('referralLink' in data) || isSafeString(data.referralLink, 2000)) &&
+             (!('additionalLinks' in data) || isSafeArray(data.additionalLinks, 10)) &&
+             (!('screenshots' in data) || isSafeArray(data.screenshots, 10)) &&
+             (!('seoKeywords' in data) || isSafeString(data.seoKeywords, 500)) &&
+             (!('averageRating' in data) || data.averageRating is number) &&
+             (!('totalRatings' in data) || data.totalRatings is number) &&
+             (!('creatorLevel' in data) || data.creatorLevel is number) &&
+             (!('updatedAt' in data) || data.updatedAt is timestamp) &&
+             data.createdAt is timestamp;
+    }
+
+    function isValidProduct(data) {
+      return isSafeString(data.productName, 100) &&
+             isSafeString(data.productTitle, 100) &&
+             isSafeString(data.description, 5000) &&
+             data.keys().hasAll(['productName', 'productTitle', 'description', 'createdAt']) &&
+             (!('productImage' in data) || isSafeString(data.productImage, 1000000)) &&
+             (!('affiliateLink' in data) || isSafeString(data.affiliateLink, 2000)) &&
+             (!('additionalLinks' in data) || isSafeArray(data.additionalLinks, 10)) &&
+             (!('productImages' in data) || isSafeArray(data.productImages, 10)) &&
+             (!('seoKeywords' in data) || isSafeString(data.seoKeywords, 500)) &&
+             (!('averageRating' in data) || data.averageRating is number) &&
+             (!('totalRatings' in data) || data.totalRatings is number) &&
+             (!('creatorLevel' in data) || data.creatorLevel is number) &&
+             (!('updatedAt' in data) || data.updatedAt is timestamp) &&
+             data.createdAt is timestamp;
+    }
+
+    function isValidRating(data) {
+      return isSafeString(data.itemId, 128) &&
+             isSafeString(data.itemType, 50) &&
+             (data.itemType == 'apps' || data.itemType == 'earning_apps' || data.itemType == 'products') &&
+             data.rating is number &&
+             data.rating >= 1 && data.rating <= 5 &&
+             data.keys().hasAll(['itemId', 'itemType', 'rating', 'createdAt']) &&
+             data.keys().size() == 4 &&
+             data.createdAt is timestamp;
+    }
+
+    function isValidSettings(data) {
+      return isSafeString(data.websiteName, 100) &&
+             data.keys().hasAll(['websiteName', 'updatedAt']) &&
+             (!('logoUrl' in data) || isSafeString(data.logoUrl, 1000000)) &&
+             (!('accentColor' in data) || isSafeString(data.accentColor, 50)) &&
+             (!('searchEnabled' in data) || data.searchEnabled is bool) &&
+             (!('promoterSecretCode' in data) || isSafeString(data.promoterSecretCode, 100)) &&
+             (!('pwaAppName' in data) || isSafeString(data.pwaAppName, 100)) &&
+             (!('pwaInstallPrompt' in data) || isSafeString(data.pwaInstallPrompt, 200)) &&
+             data.updatedAt is timestamp;
+    }
+
+    function isValidAnnouncement(data) {
+      return data.enabled is bool &&
+             isSafeString(data.title, 200) &&
+             data.keys().hasAll(['enabled', 'title', 'updatedAt']) &&
+             (!('description' in data) || isSafeString(data.description, 1000)) &&
+             (!('image' in data) || isSafeString(data.image, 1000000)) &&
+             (!('link' in data) || isSafeString(data.link, 2000)) &&
+             data.updatedAt is timestamp;
+    }
+
+    function isValidView(data) {
+      return isSafeString(data.path, 500) &&
+             data.keys().hasAll(['path', 'timestamp']) &&
+             data.keys().size() == 2 &&
+             data.timestamp is timestamp;
+    }
+
+    match /apps/{appId} {
+      allow read: if true;
+      allow create: if isAdmin() && isValidId(appId) && isValidApp(incoming()) && incoming().createdAt == request.time;
+      allow update: if isValidId(appId) && isAdmin() && isValidApp(incoming()) && incoming().updatedAt == request.time;
+      allow delete: if isAdmin() && isValidId(appId);
+    }
+
+    match /earning_apps/{appId} {
+      allow read: if true;
+      allow create: if isAdmin() && isValidId(appId) && isValidApp(incoming()) && incoming().createdAt == request.time;
+      allow update: if isValidId(appId) && isAdmin() && isValidApp(incoming()) && incoming().updatedAt == request.time;
+      allow delete: if isAdmin() && isValidId(appId);
+    }
+
+    match /products/{productId} {
+      allow read: if true;
+      allow create: if isAdmin() && isValidId(productId) && isValidProduct(incoming()) && incoming().createdAt == request.time;
+      allow update: if isValidId(productId) && isAdmin() && isValidProduct(incoming()) && incoming().updatedAt == request.time;
+      allow delete: if isAdmin() && isValidId(productId);
+    }
+
+    match /ratings/{ratingId} {
+      allow read: if true;
+      allow create: if isValidId(ratingId) && isValidRating(incoming()) && incoming().createdAt == request.time;
+      allow update: if false;
+      allow delete: if isAdmin() && isValidId(ratingId);
+    }
+
+    match /settings/{settingId} {
+      allow read: if true;
+      allow create: if isAdmin() && isValidId(settingId) && isValidSettings(incoming());
+      allow update: if isAdmin() && isValidId(settingId) && isValidSettings(incoming()) && incoming().updatedAt == request.time;
+      allow delete: if false;
+    }
+
+    match /admin_auth/{docId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /announcements/{annId} {
+      allow read: if true;
+      allow create: if isAdmin() && isValidId(annId) && isValidAnnouncement(incoming());
+      allow update: if isAdmin() && isValidId(annId) && isValidAnnouncement(incoming()) && incoming().updatedAt == request.time;
+      allow delete: if false;
+    }
+
+    match /views/{viewId} {
+      allow read: if isAdmin();
+      allow create: if isValidId(viewId) && isValidView(incoming()) && incoming().timestamp == request.time;
+      allow update: if false;
+      allow delete: if isAdmin();
+    }
+
+    match /promoters/{uid} {
+      allow read, update, create: if true; 
+      allow delete: if isAdmin();
+    }
+
+    match /creator_requests/{reqId} {
+      allow read, update, create: if true;
+      allow delete: if isAdmin();
+    }
+
+    match /monetization_requests/{reqId} {
+      allow read, update, create: if true;
+      allow delete: if isAdmin();
+    }
+
+    match /promoter_links/{linkId} {
+      allow read, update, create: if true;
+      allow delete: if isAdmin() || (request.auth != null && existing().promoterId == request.auth.uid);
+    }
+
+    match /verification_sessions/{sessionId} {
+      allow read: if true;
+      allow create, update: if true;
+      allow delete: if isAdmin();
+    }
+
+    match /ads/{adId} {
+      allow read: if true;
+      allow create, delete: if isAdmin();
+      allow update: if isAdmin() || 
+                    (request.resource.data.diff(resource.data).affectedKeys()
+                      .hasOnly(['clicks', 'success', 'failed']));
+    }
+
+    match /about_sections/{sectionId} {
+      allow read: if true;
+      allow create, update: if isAdmin();
+      allow delete: if isAdmin();
+    }
+  }
+}
